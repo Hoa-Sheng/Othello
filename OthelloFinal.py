@@ -1,4 +1,5 @@
 import random
+import time
 
 # Object used to create new boards
 
@@ -192,16 +193,14 @@ class Game:
                 tiles_to_flip = board_instance.is_legal_move(
                     x_pos, y_pos, color)
                 if not tiles_to_flip:
-                    print("Invalid move")
+                    print("Invalid move for " + color)
                 else:
                     board_instance.board[(x_pos) + y_pos * 8].content = color
                     board_instance.flip_tiles(
                         x_pos, y_pos, tiles_to_flip, color)
-                    print(f"Pion placé en {x_pos}, {y_pos}")
                     self.update_score(board_instance)
                     self.change_active_player()
                     self.check_for_valid_moves(board_instance)
-                    board_instance.draw_board("Content")
             else:
                 print("There is already a pawn here")
 
@@ -210,7 +209,6 @@ class Game:
         # Prend self.active_player et change la couleur du joueur actif
         if self.active_player == "⚫":
             self.active_player = "⚪"
-            print("C'est au tour du joueur blanc")
         else:
             self.active_player = "⚫"
             print("C'est au tour du joueur noir")
@@ -258,18 +256,10 @@ class Game:
 
     # Compare the score, and print the winner's color
     def check_for_winner(self):
-        print("Partie terminée !")
-        print("Le joueur noir a: " + str(self.score_black) + " points")
-        print("Le joueur white a: " + str(self.score_white) + " points")
         if (self.score_black > self.score_white):
-            print("Le joueur noir a gagné !")
             self.winner = "⚫"
         elif (self.score_white > self.score_black):
-            print("Le joueur blanc a gagné !")
             self.winner = "⚪"
-        else:
-            print("Égalité !")
-
 
 class Bot:
     def __init__(self):
@@ -306,10 +296,67 @@ while not othello_game.is_game_over:
         othello_game.place_pawn(
             move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
 
-    # Second player / bot logic goes here
-    else:
-        move_coordinates = [0, 0]
-        move_coordinates[0] = int(input("Coordonnées en X: "))
-        move_coordinates[1] = int(input("Coordonnées en Y: "))
-        othello_game.place_pawn(
-            move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
+# Loop until the game is over
+def play_games(number_of_games, timeout_value):
+    white_victories = 0
+    black_victories = 0
+    white_win_icons = ""
+    black_win_icons = ""
+    
+    for current_game in range(number_of_games):
+
+        timeout = time.time() + timeout_value
+
+        # Create a new board & a new game instances
+        othello_board = Board(8)
+        othello_game = Game()
+
+        # Fill the board with tiles
+        othello_board.create_board()
+
+        # Create 2 bots
+        myBot = Bot()
+        otherBot = Bot()
+
+        while not othello_game.is_game_over:
+
+            if(time.time() > timeout):
+                othello_game.check_for_winner()
+                othello_game.is_game_over = True
+                print("Player " + othello_game.active_player + " caused a Timeout")
+                break
+
+            # First player / bot logic goes here
+            if(othello_game.active_player == "⚫"):
+                move_coordinates = [0, 0]
+                move_coordinates[0] = int(input("Coordonnées en X: "))
+                move_coordinates[1] = int(input("Coordonnées en Y: "))
+                othello_game.place_pawn(
+                move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
+
+
+            # Second player / bot logic goes here
+            else:
+                move_coordinates = [0, 0]
+                move_coordinates[0] = int(input("Coordonnées en X: "))
+                move_coordinates[1] = int(input("Coordonnées en Y: "))
+                othello_game.place_pawn(
+                move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
+        
+        if(othello_game.winner == "⚫"):
+            black_win_icons += "⚫"
+            black_victories += 1
+        elif(othello_game.winner == "⚪"):
+            white_win_icons += "⚪"
+            white_victories += 1
+        
+        print(black_win_icons)
+        print(white_win_icons)
+        
+    
+    print("End of the games, showing scores: ")
+    print("Black player won " + str(black_victories) + " times")
+    print("White player won " + str(white_victories) + " times")
+        
+
+play_games(100, 0.8)
