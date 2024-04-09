@@ -287,16 +287,6 @@ myBot = Bot()
 otherBot = Bot()
 
 # Loop until the game is over
-while not othello_game.is_game_over:
-    # First player / bot logic goes here
-    if (othello_game.active_player == "⚫"):
-        move_coordinates = [0, 0]
-        move_coordinates[0] = int(input("Coordonnées en X: "))
-        move_coordinates[1] = int(input("Coordonnées en Y: "))
-        othello_game.place_pawn(
-            move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
-
-# Loop until the game is over
 def play_games(number_of_games, timeout_value):
     white_victories = 0
     black_victories = 0
