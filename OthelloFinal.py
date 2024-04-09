@@ -211,7 +211,6 @@ class Game:
             self.active_player = "⚪"
         else:
             self.active_player = "⚫"
-            print("C'est au tour du joueur noir")
             
         self.turn += 1
 
