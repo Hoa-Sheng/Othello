@@ -1,5 +1,6 @@
 import random
 import time
+import copy
 
 # Object used to create new boards
 
@@ -262,14 +263,152 @@ class Game:
 
 class Bot:
     def __init__(self):
-        self.name = "Name of your Bot"
-
+        self.name = "Scl4ve"
+   
     # BOT FUNCTIONS
 
-    def check_valid_moves(self):
-        print("Il faut récupérer toutes les cases du tableau")
-        print("Vérifier quels coups sont jouables")
-        print("Et renvoyer les coordonnées")
+    def check_valid_moves(self, titi, burritos):
+        tour = (burritos.score_black + burritos.score_white) - 4
+        fourretout = []
+        max_score = -999
+        matricedebut = [
+        50, -10, 10, 5, 5, 10, -10, 50,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        10, -6, 50, 10, 10, 50, -6, 10,
+        5, -6, 10, 0, 0, 10, -6, 5,
+        5, -6, 10, 0, 0, 10, -6, 5,
+        10, -6, 50, 10, 10, 50, -6, 10,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        50, -10, 10, 5, 5, 10, -10, 50
+        ]
+        matricemilieu = [
+        50, -10, 10, 5, 5, 10, -10, 50,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        15, -6, 5, 1, 1, 5, -6, 15,
+        5, -6, 1, 0, 0, 1, -6, 5,
+        5, -6, 1, 0, 0, 1, -6, 5,
+        15, -6, 5, 1, 1, 50, -6, 15,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        50, -10, 10, 5, 5, 10, -10, 50
+        ]
+        compteur=0
+        for tile_index in titi.board:
+            ff=0
+            tour = burritos.score_black + burritos.score_white - 4
+            prout = titi.is_legal_move( tile_index.x_pos, tile_index.y_pos, burritos.active_player)
+            if prout != False:
+                if tour <= 15:
+                    ff += matricedebut[compteur]
+                elif tour > 15:
+                    ff += matricemilieu[compteur]
+
+                for zizi in prout:
+                    ff += zizi[0]
+                if ff > max_score:
+                    max_score = ff
+                    fourretout = []
+                    fourretout.append([tile_index.x_pos, tile_index.y_pos])
+                elif ff == max_score:
+                    fourretout.append([tile_index.x_pos, tile_index.y_pos])
+            compteur += 1 
+        return random.choice(fourretout)
+
+    def check_valid_moves2(self, toto, anus):
+        tour = (anus.score_black + anus.score_white) - 4
+        fourretout = []
+        max_score = -999
+        matricedebut = [
+        50, -10, 10, 5, 5, 10, -10, 50,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        10, -6, 50, 10, 10, 50, -6, 10,
+        5, -6, 10, 0, 0, 10, -6, 5,
+        5, -6, 10, 0, 0, 10, -6, 5,
+        10, -6, 50, 10, 10, 50, -6, 10,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        50, -10, 10, 5, 5, 10, -10, 50
+        ]
+        matricemilieu = [
+        50, -10, 10, 5, 5, 10, -10, 50,
+        -10, -25, -10, -6, -6, -10, -25, -10,
+        15, -10, 5, 1, 1, 5, -6, 15,
+        5, -6, 1, 0, 0, 1, -6, 5,
+        5, -6, 1, 0, 0, 1, -6, 5,
+        15, -6, 5, 1, 1, 50, -6, 15,
+        -10, -25, -10, -6, -6, -10, -25, -10,
+        50, -10, 10, 5, 5, 10, -10, 50
+        ]
+        compteur=0
+        for tile_index in toto.board:
+            ff=0
+            tour = anus.score_black + anus.score_white - 4
+            prout = toto.is_legal_move( tile_index.x_pos, tile_index.y_pos, anus.active_player)
+            if prout != False:
+                if tour <= 15:
+                    ff += matricedebut[compteur]
+                elif tour > 15:
+                    ff += matricemilieu[compteur]
+                for zizi in prout:
+                    ff += zizi[0]
+
+
+                ff -= self.prediction(tile_index, toto, anus)
+
+
+                if ff > max_score:
+                    max_score = ff
+                    fourretout = []
+                    fourretout.append([tile_index.x_pos, tile_index.y_pos])
+                elif ff == max_score:
+                    fourretout.append([tile_index.x_pos, tile_index.y_pos])
+            compteur += 1           
+        return random.choice(fourretout)
+    
+    def prediction(self, tile, board, game):
+        my_board = copy.deepcopy(board)
+        my_game = copy.deepcopy(game)
+        my_game.place_pawn(tile.x_pos, tile.y_pos, my_board, my_game.active_player)
+        return self.get_score(my_board, my_game)
+
+    def get_score(self, toto, anus):
+        tour = (anus.score_black + anus.score_white) - 4
+        max_score = -999
+        matricedebut = [
+        50, -10, 10, 5, 5, 10, -10, 50,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        10, -6, 50, 10, 10, 50, -6, 10,
+        5, -6, 10, 0, 0, 10, -6, 5,
+        5, -6, 10, 0, 0, 10, -6, 5,
+        10, -6, 50, 10, 10, 50, -6, 10,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        50, -10, 10, 5, 5, 10, -10, 50
+        ]
+        matricemilieu = [
+        50, -10, 10, 5, 5, 10, -10, 50,
+        -10, -25, -10, -6, -6, -10, -25, -10,
+        15, -10, 5, 1, 1, 5, -6, 15,
+        5, -6, 1, 0, 0, 1, -6, 5,
+        5, -6, 1, 0, 0, 1, -6, 5,
+        15, -6, 5, 1, 1, 50, -6, 15,
+        -10, -25, -10, -6, -6, -10, -25, -10,
+        50, -10, 10, 5, 5, 10, -10, 50
+        ]
+        compteur=0
+        for tile_index in toto.board:
+            ff=0
+            tour = anus.score_black + anus.score_white - 4
+            prout = toto.is_legal_move( tile_index.x_pos, tile_index.y_pos, anus.active_player)
+            if prout != False:
+                if tour <= 15:
+                    ff += matricedebut[compteur]
+                elif tour > 15:
+                    ff += matricemilieu[compteur]
+                for zizi in prout:
+                    ff += zizi[0]
+                if ff > max_score:
+                    max_score = ff
+            compteur += 1 
+                 
+        return max_score
 
 # Create a new board & a new game instances
 othello_board = Board(8)
@@ -318,8 +457,7 @@ def play_games(number_of_games, timeout_value):
             # First player / bot logic goes here
             if(othello_game.active_player == "⚫"):
                 move_coordinates = [0, 0]
-                move_coordinates[0] = int(input("Coordonnées en X: "))
-                move_coordinates[1] = int(input("Coordonnées en Y: "))
+                move_coordinates = myBot.check_valid_moves(othello_board, othello_game)
                 othello_game.place_pawn(
                 move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
 
@@ -327,8 +465,7 @@ def play_games(number_of_games, timeout_value):
             # Second player / bot logic goes here
             else:
                 move_coordinates = [0, 0]
-                move_coordinates[0] = int(input("Coordonnées en X: "))
-                move_coordinates[1] = int(input("Coordonnées en Y: "))
+                move_coordinates = otherBot.check_valid_moves2(othello_board, othello_game)
                 othello_game.place_pawn(
                 move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
         
