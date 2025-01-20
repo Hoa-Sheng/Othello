@@ -261,7 +261,7 @@ class Game:
         elif (self.score_white > self.score_black):
             self.winner = "⚪"
 
-class Bot:
+class XxScl4ve_DestroyerxX:
     def __init__(self):
         self.name = "Scl4ve"
    
@@ -351,7 +351,7 @@ class Bot:
                     ff += zizi[0]
 
 
-                ff -= self.prediction(tile_index, toto, anus)
+                ff += self.prediction(tile_index, toto, anus, False, 2, 0)
 
 
                 if ff > max_score:
@@ -363,11 +363,24 @@ class Bot:
             compteur += 1           
         return random.choice(fourretout)
     
-    def prediction(self, tile, board, game):
+    def prediction(self, tile, board, game, minmax, depth, score):
         my_board = copy.deepcopy(board)
         my_game = copy.deepcopy(game)
         my_game.place_pawn(tile.x_pos, tile.y_pos, my_board, my_game.active_player)
-        return self.get_score(my_board, my_game)
+        if minmax:
+            score += self.get_score(my_board, my_game)
+        else:
+            score -= self.get_score(my_board, my_game)
+
+        if(minmax):
+            minmax = False
+        else:
+            minmax = True
+
+        if(depth <= 0):
+            return score
+        else:
+            self.prediction(tile, my_board, my_game, minmax, depth-1, score)
 
     def get_score(self, toto, anus):
         tour = (anus.score_black + anus.score_white) - 4
@@ -410,6 +423,144 @@ class Bot:
                  
         return max_score
 
+
+    
+class CrotoBotEz:
+    def __init__(self):
+        self.coners = [[0, 0], [7, 0], [0, 7], [7, 7]]
+        self.avoided_tiles = [[1, 0], [0, 1],  [1, 1], [1, 7], [0, 6], [1, 6], [6, 0], [7, 1], [6, 1], [6, 7], [7, 6], [6, 6]]
+
+    # BOT FUNCTIONS
+
+    def check_valid_moves(self, board, game):
+        max_points = -999
+        best_moves = []
+        current_move = []
+
+        for current_tile in board.board:
+            points = 0
+
+            if(board.is_tile_empty):
+                current_move = board.is_legal_move(current_tile.x_pos, current_tile.y_pos, game.active_player)
+                
+                if (current_move != False):
+                    for tiles_to_flip in current_move:
+                        points += tiles_to_flip[0]
+                    
+                    points += self.get_tile_weight(current_tile.x_pos, current_tile.y_pos)
+                    if(points > max_points):
+                        best_moves = [[current_tile.x_pos, current_tile.y_pos]]
+                        max_points = points
+                    elif(points == max_points):
+                        best_moves.append([current_tile.x_pos, current_tile.y_pos])
+
+        return random.choice(best_moves)
+                
+    def get_tile_weight(self, x, y):
+        total_points = 0
+
+        for current_coord in self.coners:
+            if x == current_coord[0] and y == current_coord[1]:
+                total_points += 100
+                break
+            
+        for current_coord in self.avoided_tiles:
+            if x == current_coord[0] and y == current_coord[1]:
+                total_points -= 30
+                break
+        
+        return total_points
+    
+
+class maqueue:
+    def __init__(self):
+        self.name = "Scl4ve"
+   
+    # BOT FUNCTIONS
+
+    def check_valid_moves(self, titi, burritos):
+        best_move = self.minmax(titi, burritos, 2, True)
+        return best_move[0]
+
+    def minmax(self, board, game, depth, is_maximizing):
+        if depth == 0 or game.is_game_over:
+            return None, self.get_score(board, game)
+
+        best_move = None
+        if is_maximizing:
+            max_eval = -float('inf')
+            for move in self.get_all_valid_moves(board, game):
+                new_board, new_game = self.simulate_move(board, game, move)
+                current_eval = self.minmax(new_board, new_game, depth - 1, False)[1]
+                if current_eval > max_eval:
+                    max_eval = current_eval
+                    best_move = move
+            return best_move, max_eval
+        else:
+            min_eval = float('inf')
+            for move in self.get_all_valid_moves(board, game):
+                new_board, new_game = self.simulate_move(board, game, move)
+                current_eval = self.minmax(new_board, new_game, depth - 1, True)[1]
+                if current_eval < min_eval:
+                    min_eval = current_eval
+                    best_move = move
+            return best_move, min_eval
+
+    def get_all_valid_moves(self, board, game):
+        valid_moves = []
+        for tile_index in board.board:
+            if board.is_legal_move(tile_index.x_pos, tile_index.y_pos, game.active_player):
+                valid_moves.append([tile_index.x_pos, tile_index.y_pos])
+        return valid_moves
+
+    def simulate_move(self, board, game, move):
+        new_board = copy.deepcopy(board)
+        new_game = copy.deepcopy(game)
+        new_game.place_pawn(move[0], move[1], new_board, new_game.active_player)
+        return new_board, new_game
+
+    def get_score(self, toto, anus):
+        tour = (anus.score_black + anus.score_white) - 4
+        max_score = -999
+        matricedebut = [
+        50, -10, 10, 5, 5, 10, -10, 50,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        10, -6, 50, 10, 10, 50, -6, 10,
+        5, -6, 10, 0, 0, 10, -6, 5,
+        5, -6, 10, 0, 0, 10, -6, 5,
+        10, -6, 50, 10, 10, 50, -6, 10,
+        -10, -25, -6, -6, -6, -6, -25, -10,
+        50, -10, 10, 5, 5, 10, -10, 50
+        ]
+        matricemilieu = [
+        50, -10, 10, 5, 5, 10, -10, 50,
+        -10, -25, -10, -6, -6, -10, -25, -10,
+        15, -10, 5, 1, 1, 5, -6, 15,
+        5, -6, 1, 0, 0, 1, -6, 5,
+        5, -6, 1, 0, 0, 1, -6, 5,
+        15, -6, 5, 1, 1, 50, -6, 15,
+        -10, -25, -10, -6, -6, -10, -25, -10,
+        50, -10, 10, 5, 5, 10, -10, 50
+        ]
+        compteur=0
+        for tile_index in toto.board:
+            ff=0
+            tour = anus.score_black + anus.score_white - 4
+            prout = toto.is_legal_move( tile_index.x_pos, tile_index.y_pos, anus.active_player)
+            if prout != False:
+                if tour <= 15:
+                    ff += matricedebut[compteur]
+                elif tour > 15:
+                    ff += matricemilieu[compteur]
+                for zizi in prout:
+                    ff += zizi[0]
+                if ff > max_score:
+                    max_score = ff
+            compteur += 1 
+                 
+        return max_score
+    
+
 # Create a new board & a new game instances
 othello_board = Board(8)
 othello_game = Game()
@@ -421,8 +572,8 @@ othello_board.create_board()
 othello_board.draw_board("Content")
 
 # Create 2 bots
-myBot = Bot()
-otherBot = Bot()
+myBot = XxScl4ve_DestroyerxX()
+otherBot = XxScl4ve_DestroyerxX()
 
 # Loop until the game is over
 def play_games(number_of_games, timeout_value):
@@ -443,8 +594,8 @@ def play_games(number_of_games, timeout_value):
         othello_board.create_board()
 
         # Create 2 bots
-        myBot = Bot()
-        otherBot = Bot()
+        myBot = XxScl4ve_DestroyerxX()
+        otherBot = XxScl4ve_DestroyerxX()
 
         while not othello_game.is_game_over:
 
@@ -457,7 +608,7 @@ def play_games(number_of_games, timeout_value):
             # First player / bot logic goes here
             if(othello_game.active_player == "⚫"):
                 move_coordinates = [0, 0]
-                move_coordinates = myBot.check_valid_moves(othello_board, othello_game)
+                move_coordinates = otherBot.check_valid_moves2(othello_board, othello_game)
                 othello_game.place_pawn(
                 move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
 
@@ -465,7 +616,7 @@ def play_games(number_of_games, timeout_value):
             # Second player / bot logic goes here
             else:
                 move_coordinates = [0, 0]
-                move_coordinates = otherBot.check_valid_moves2(othello_board, othello_game)
+                move_coordinates = myBot.check_valid_moves(othello_board, othello_game)
                 othello_game.place_pawn(
                 move_coordinates[0], move_coordinates[1], othello_board, othello_game.active_player)
         
@@ -478,6 +629,7 @@ def play_games(number_of_games, timeout_value):
         
         print(black_win_icons)
         print(white_win_icons)
+        
         
     
     print("End of the games, showing scores: ")
